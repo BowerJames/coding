@@ -19,7 +19,7 @@ Three fields, space-delimited, in a fixed order.
 | Field           | Meaning                                                                                                                          |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | `timestamp_utc` | When the event occurred, in UTC. Use ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`).                                                           |
-| `level`         | Severity from the host language's standard set (e.g. `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`). Do not invent new levels. |
+| `level`         | One of `DEBUG`, `INFO`, `WARNING`, `ERROR` — the canonical four-level set. Do not invent new levels, and do not use `CRITICAL` (removed 2026-07-09; see [Log output streams](streams.md) for the level vocabulary and routing). |
 | `message`       | The human-readable description of the event.                                                                                     |
 
 # Rationale
@@ -41,6 +41,11 @@ Three fields, space-delimited, in a fixed order.
 This format is deliberately minimal — a single freeform `<message>` tail. That keeps the rule simple and universal across languages, but it leaves **no dedicated position for structured context** (request IDs, user IDs, span IDs, error codes). Such context can still be embedded inside `<message>`, but it will not occupy a fixed, queryable field.
 
 When richer observability is needed (e.g. distributed tracing, structured/JSON logging with first-class fields), that belongs in a *separate*, more detailed practice — this page covers the baseline format only. As further logging pages are filed under `/logging/`, link them here.
+
+# See also
+
+- [Log output streams](streams.md) — which stream (`stdout`/`stderr`) each level routes to, and the alerting rationale.
+- [Logging in Python](/python/logging.md) — language-specific implementation of this format plus the stream routing.
 
 # Citations
 

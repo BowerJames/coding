@@ -11,7 +11,8 @@ okf_version: "0.1"
 ## Logging
 
 * [Log line format](/logging/format.md) - All log output uses the `<timestamp_utc> <level> <message>` format.
+* [Log output streams](/logging/streams.md) - Route DEBUG, INFO, WARNING to stdout and ERROR to stderr so error-grade output is separately alertable.
 
 ## Python
 
-_None yet._
+* [Logging in Python](/python/logging.md) - stdlib `logging` configured for the UTC line-format rule and DEBUG-WARNING→stdout / ERROR→stderr routing.
