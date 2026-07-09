@@ -3,7 +3,7 @@ type: practice
 title: Log output streams
 description: "Route DEBUG, INFO, WARNING to stdout and ERROR to stderr so error-grade output is separately alertable."
 tags: [logging, observability, alerting]
-timestamp: 2026-07-09T13:00:43Z
+timestamp: 2026-07-09T14:31:09Z
 ---
 
 Every log line emitted by code in this wiki's scope is routed to one of the two
@@ -73,6 +73,8 @@ single home for error-grade output.
 
 - [Log line format](format.md) — the `<timestamp_utc> <level> <message>` structure every line must take.
 - [Logging in Python](/python/logging.md) — the language-specific implementation of this routing with stdlib `logging`.
+- [Log vs. raise](/error-handling/log-vs-raise.md) — how this `ERROR`/`WARNING` distinction applies to tolerated data-model anomalies (log at `ERROR`, don't raise).
+- [Fault tolerance](/error-handling/fault-tolerance.md) — the error-handling policy that consumes this routing: survive by default, fail narrowly, and what an `ERROR` means (a broken assumption).
 
 # Citations
 
