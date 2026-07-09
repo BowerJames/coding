@@ -3,7 +3,7 @@ type: python
 title: Type safety in Python
 description: "Type safety is critical in Python: run mypy in strict mode, annotate every function, and avoid Any by receiving unknown data as object and narrowing it. Prefer dataclasses or pydantic as containers. Justify any type: ignore; prefer not to need one."
 tags: [python, type-safety, mypy, static-analysis]
-timestamp: 2026-07-09T16:14:26Z
+timestamp: 2026-07-09T17:05:00Z
 ---
 
 Type safety is critical. Python is dynamically typed, so the interpreter will
@@ -272,6 +272,7 @@ aspirational — the guarantee holds only if there are no opt-outs.
 # See also
 
 - [Fault tolerance](/error-handling/fault-tolerance.md) — mypy strict *prevents* the data-model / internal-state class of `ERROR` (broken shape/type assumptions) at analysis time, before they become runtime failures.
+- [Linting and formatting in Python](/python/linting.md) — ruff is the Python linter/formatter; it complements mypy (ruff is not a type checker, mypy is not a linter). The two run together as the Python automated-checks stack.
 - [Logging in Python](/python/logging.md) — sibling Python convention (logging setup), same language-specific layer of the wiki.
 
 # Citations
