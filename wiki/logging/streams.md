@@ -3,7 +3,7 @@ type: practice
 title: Log output streams
 description: "Route DEBUG, INFO, WARNING to stdout and ERROR to stderr so error-grade output is separately alertable."
 tags: [logging, observability, alerting]
-timestamp: 2026-07-09T11:53:30Z
+timestamp: 2026-07-09T13:00:43Z
 ---
 
 Every log line emitted by code in this wiki's scope is routed to one of the two
@@ -27,11 +27,12 @@ ERROR    -> stderr
 | `WARNING`| stdout | Recoverable / soft-fail conditions worth reviewing. Not alertable.               |
 | `ERROR`  | stderr | Failures / exceptional conditions. **The alertable channel.**                     |
 
-These four are the **canonical level set**. Do not add more. In particular,
-`CRITICAL` is *not* part of the set (it was dropped on 2026-07-09; see
-[Log line format](format.md) for the line structure and the level vocabulary).
+These four are the **canonical level set**. Do not add more, and do not *emit*
+severities above `ERROR` from your own code (`CRITICAL` was dropped from the
+canonical set on 2026-07-09). See [Log line format](format.md) for the line
+structure.
 
-If a host language or framework offers severities above `ERROR` (e.g.
+If a *dependency* or framework emits severities above `ERROR` anyway (e.g.
 `CRITICAL`/`FATAL`), route them to **stderr alongside `ERROR`** — stderr is the
 single home for error-grade output.
 
