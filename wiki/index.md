@@ -23,3 +23,8 @@ okf_version: "0.1"
 * [Logging in Python](/python/logging.md) - stdlib `logging` configured for the UTC line-format rule and DEBUG-WARNING→stdout / ERROR→stderr routing.
 * [Type safety in Python](/python/type-safety.md) - Run mypy in strict mode; annotate every function; avoid `Any` by receiving unknown data as `object` and narrowing (prefer dataclasses / pydantic as containers); justify any `type: ignore`.
 * [Linting and formatting in Python](/python/linting.md) - Use ruff for both linting (`ruff check`) and formatting (`ruff format`); defaults are the floor, run locally and in CI. Ruff is not a type checker — that stays mypy's job.
+* [Streaming seams in Python](/python/streaming.md) - Implement the stream-seam pattern with `asyncio.Queue`: a single-pass async-iterator `Stream` and a `push`/`end` `StreamWriter` linked by a shared `_Core`, created by `create_stream()`. Modern typing (PEP 695 generics, `Self`, `__slots__`).
+
+## Patterns
+
+* [Stream seam](/patterns/streaming.md) - Split an async stream into a consumer iterator and a producer writer sharing one queue, paired by a `create_stream()` factory — so a provider can return the read side while filling it from a background task. Single-pass, single-consumer, sentinel-terminated, idempotent close.
