@@ -18,6 +18,10 @@ okf_version: "0.1"
 * [Fault tolerance](/error-handling/fault-tolerance.md) - Survive by default: fail at the narrowest scope (fallback → fail the request → crash only as a last resort); every failure logged at `ERROR`. An error means an application assumption broke (external dependency, data model, or internal state).
 * [Log vs. raise](/error-handling/log-vs-raise.md) - Absorb recoverable anomalies (log + continue/fallback), propagate the rest (throw/`Err`/boundary); always log `ERROR`. Crash-vs-survive is decided by Fault tolerance.
 
+## Workflow
+
+* [Task running with justfile](/workflow/justfile.md) - Every project uses just as the single entry point for tasks/commands/scripts; recipes wrap bare tool commands or native-language scripts; dotenv always on; same recipes run locally and in CI.
+
 ## Python
 
 * [Logging in Python](/python/logging.md) - stdlib `logging` configured for the UTC line-format rule and DEBUG-WARNING→stdout / ERROR→stderr routing.
