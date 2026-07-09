@@ -34,4 +34,12 @@ Use these `type` values in frontmatter. Keep the set small and stable.
 | `practice`   | A best practice / principle you should follow.                          |
 | `pattern`    | A reusable design or architectural pattern, with when-to-use guidance.  |
 | `antipattern`| A named smell or trap to avoid, often with the better alternative.      |
-| `python`.    | Python specifific conventions and best practices.                       |
+| `python`     | Python-specific conventions and best practices.                         |
+| `typescript` | TypeScript-specific conventions and best practices.                     |
+| `rust`       | Rust-specific conventions and best practices.                           |
+
+## Frontmatter
+
+Every concept document has YAML frontmatter delimited by `---` with a **required** `type` field. `title`, `description`, `tags`, and `timestamp` are optional.
+
+`timestamp` records the **last-modified** time of the page (ISO 8601, UTC — e.g. `2026-07-09T13:00:43Z`); bump it whenever you edit the page. `index.md` and `log.md` are reserved files with no frontmatter, and `SPEC.md` is a meta file that also carries none.
