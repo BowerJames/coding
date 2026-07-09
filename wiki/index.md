@@ -1,24 +1,16 @@
+---
+okf_version: "0.1"
+---
+
 # Coding Best Practices Wiki
 
 > Directory listing for progressive disclosure. Maintained by the agent —
 > updated whenever pages are added, moved, or removed. See `SPEC.md` for scope.
+> Grouped by topic; each page's `type` is recorded in its frontmatter.
 
-## Status
+## Logging
 
-Empty — no pages yet. Add a source and ask the agent to ingest it, or ask it to
-draft a page on a topic.
-
-## Practices
-
-_None yet._
-
-## Patterns
-
-_None yet._
-
-## Anti-Patterns
-
-_None yet._
+* [Log line format](/logging/format.md) - All log output uses the `<timestamp_utc> <level> <message>` format.
 
 ## Python
 
