@@ -3,7 +3,7 @@ type: pattern
 title: "Stream seam — split a stream into a consumer iterator and a producer writer sharing one queue"
 description: "A provider returns an async stream it fills from a background task by splitting read/write authority at a seam: a single-pass consumer (async iterator) and a producer (writer) linked by one shared queue, created together by a factory."
 tags: [streams, concurrency, async, producer-consumer, design-pattern]
-timestamp: 2026-07-09T23:05:00Z
+timestamp: 2026-07-09T23:40:00Z
 ---
 
 A common shape in async code: a provider must **return a stream to its caller**
@@ -29,10 +29,10 @@ Four roles. Three are objects; the fourth is a factory that pairs them:
 | **Core** (private) | Holds the **shared state** linking the two sides: the queue and a "done" flag. Never exposed to either side's caller — it exists only to couple one consumer to one producer. |
 | **Consumer** (the read side) | A **single-pass `AsyncIterator`** over events. This is the object handed to the caller. Iterate with `async for`. |
 | **Producer / Writer** (the write side) | Exposes **`push(event)`** and **`end()`**. Kept by the provider. |
-| **Factory `create_stream()`** | Constructs one Core, wires both sides to it, and returns **`(consumer, writer)`**. The provider keeps the writer and returns the consumer. |
+| **Factory `create_stream()`** | Constructs one Core, wires both sides to it, and returns them as a **bound pair** (consumer + writer). The provider keeps the writer and returns the consumer. |
 
 ```
-            create_stream()  ──►  ( consumer , writer )
+            create_stream()  ──►  consumer  +  writer     (a bound pair)
                                        │           │
                                        │           │ pushes / end()
                                        ▼           ▼
@@ -45,7 +45,7 @@ Four roles. Three are objects; the fourth is a factory that pairs them:
 The provider idiom is a one-liner per side:
 
 ```
-consumer, writer = create_stream()
+# one create_stream() call yields the consumer and the writer together
 spawn_background_task(writer, ...)   # producer fills the stream
 return consumer                      # caller gets the read side only
 ```
@@ -130,7 +130,8 @@ caller:
 
 - [Streaming seams in Python](/python/streaming.md) — the `asyncio.Queue`-backed
   implementation of this pattern (`_Core` / `Stream` / `StreamWriter` /
-  `create_stream`), with modern typing (PEP 695 generics, `Self`, `__slots__`).
+  `StreamWiring` / `create_stream`), with modern typing (PEP 695 generics,
+  `Self`, `__slots__`).
 
 # Citations
 
