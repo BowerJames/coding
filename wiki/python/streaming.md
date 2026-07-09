@@ -1,16 +1,18 @@
 ---
 type: python
 title: "Streaming seams in Python — asyncio queue-backed Stream / StreamWriter pair"
-description: "Implement the stream-seam pattern in Python with asyncio: a single-pass async-iterator Stream and a push/end StreamWriter linked by a shared _Core queue, created together by create_stream(). Modern typing throughout (PEP 695 generics, Self, __slots__)."
+description: "Implement the stream-seam pattern in Python with asyncio: a single-pass async-iterator Stream and a push/end StreamWriter linked by a shared _Core queue, paired by create_stream() as a frozen StreamWiring dataclass (.producer/.consumer). Modern typing throughout (PEP 695 generics, Self, __slots__, @dataclass)."
 tags: [python, streaming, concurrency, asyncio, typing]
-timestamp: 2026-07-09T23:05:00Z
+timestamp: 2026-07-09T23:40:00Z
 ---
 
 Python implements the [Stream seam](/patterns/streaming.md) pattern with
 `asyncio.Queue` as the connecting channel. The producer and consumer share one
 queue wrapped in a private `_Core`; a `Stream` is the consumer side (a
 single-pass `AsyncIterator`) and a `StreamWriter` is the producer side
-(`push`/`end`). A `create_stream()` factory constructs the pair.
+(`push`/`end`). A `create_stream()` factory constructs the pair and returns it
+as a `StreamWiring` — a frozen, slotted dataclass binding the `producer`
+(`StreamWriter`) to the `consumer` (`Stream`).
 
 # The implementation
 
@@ -18,6 +20,7 @@ single-pass `AsyncIterator`) and a `StreamWriter` is the producer side
 from __future__ import annotations
 
 import asyncio
+from dataclasses import dataclass
 from typing import Self
 
 
@@ -88,18 +91,35 @@ class StreamWriter[TEvent]:
         self._core.queue.put_nowait(None)
 
 
-def create_stream[TEvent]() -> tuple[Stream[TEvent], StreamWriter[TEvent]]:
+@dataclass(slots=True, frozen=True)
+class StreamWiring[TEvent]:
+    """A linked consumer/producer pair from :func:`create_stream`.
+
+    ``producer`` is the :class:`StreamWriter` (the side that ``push``/``end``);
+    ``consumer`` is the :class:`Stream` (the side iterated with ``async for``).
+    The two halves share one queue. Frozen because a wiring is an immutable
+    binding of the two halves produced together.
+    """
+
+    producer: StreamWriter[TEvent]
+    consumer: Stream[TEvent]
+
+
+def create_stream[TEvent]() -> StreamWiring[TEvent]:
     """Create a linked consumer/producer pair sharing one queue.
 
     A provider's ``stream()``-style function keeps the :class:`StreamWriter`
     and returns the :class:`Stream` to its caller::
 
-        consumer, writer = create_stream()
-        asyncio.create_task(_run(writer, ...))
-        return consumer
+        wiring = create_stream()
+        asyncio.create_task(_run(wiring.producer, ...))
+        return wiring.consumer
     """
     core = _Core[TEvent]()
-    return Stream[TEvent](core), StreamWriter[TEvent](core)
+    return StreamWiring(
+        producer=StreamWriter[TEvent](core),
+        consumer=Stream[TEvent](core),
+    )
 ```
 
 # The provider idiom
@@ -109,9 +129,9 @@ background task to pump events, and returns only the consumer to its caller:
 
 ```python
 async def stream() -> Stream[str]:
-    consumer, writer = create_stream[str]()
-    asyncio.create_task(_run(writer, ...))   # producer fills the stream
-    return consumer                           # caller gets the read side only
+    wiring = create_stream[str]()
+    asyncio.create_task(_run(wiring.producer, ...))  # producer fills the stream
+    return wiring.consumer  # caller gets the read side only
 
 
 async def _run(writer: StreamWriter[str], ...) -> None:
@@ -136,6 +156,7 @@ The snippet leans on modern type features throughout:
 | `typing.Self` | `def __aiter__(self) -> Self` | Returns the iterator as itself. Requires 3.11+, already subsumed by the 3.12 floor. |
 | `X \| None` unions | `asyncio.Queue[TEvent \| None]` | The modern union syntax (3.10+). |
 | `__slots__` | every class | No `__dict__` per instance — keeps the per-stream/per-writer memory minimal and prevents accidental attribute creation. |
+| `@dataclass(slots=True, frozen=True)` | `StreamWiring` | `frozen` makes the producer/consumer binding immutable (a half can't be reassigned); `slots` mirrors the other classes. Named `.producer`/`.consumer` fields make the two halves non-interchangeable at the use site — there is no positional slot to get backwards. |
 | `from __future__ import annotations` | top of module | Postponed evaluation of annotations. Harmless alongside PEP 695; included for consistency. |
 
 Every function and method is annotated (parameters *and* return types), and no
@@ -196,6 +217,8 @@ without reserving a value.
 # Citations
 
 [1] Ingested personal convention (2026-07-09): the user's `asyncio`-based stream
-seam snippet — `_Core` / `Stream` / `StreamWriter` / `create_stream`. Implements
-the [Stream seam](/patterns/streaming.md) pattern. Personal engineering pattern;
-no external URL.
+seam snippet — `_Core` / `Stream` / `StreamWriter` / `StreamWiring` /
+`create_stream`. The factory returns a `StreamWiring` (frozen, slotted
+dataclass) binding `.producer`/`.consumer`. Implements the
+[Stream seam](/patterns/streaming.md) pattern. Personal engineering pattern; no
+external URL.
