@@ -3,7 +3,7 @@ type: practice
 title: "Fault tolerance — survive by default, fail narrowly, log every failure at ERROR"
 description: "Applications should stay alive by default: fail at the narrowest scope that contains the damage (fallback → fail the request → crash only as a last resort). Every failure is logged at ERROR so developers are alerted, because it means an assumption of the application broke."
 tags: [error-handling, fault-tolerance, reliability, observability, graceful-degradation]
-timestamp: 2026-07-09T14:31:09Z
+timestamp: 2026-07-09T16:14:26Z
 ---
 
 # The policy
@@ -108,6 +108,7 @@ something it routinely anticipates) → `WARNING`.
 - [Log output streams](/logging/streams.md) — why `ERROR` is the alertable channel every failure belongs on.
 - [Log line format](/logging/format.md) — the `<timestamp_utc> <level> <message>` shape error lines take.
 - [Logging in Python](/python/logging.md) — language-specific implementation of the routing.
+- [Type safety in Python](/python/type-safety.md) — mypy strict prevents the data-model / internal-state class of `ERROR` (broken shape/type assumptions) at analysis time, before they become runtime failures.
 
 # Citations
 
