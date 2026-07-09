@@ -22,3 +22,4 @@ okf_version: "0.1"
 
 * [Logging in Python](/python/logging.md) - stdlib `logging` configured for the UTC line-format rule and DEBUG-WARNING→stdout / ERROR→stderr routing.
 * [Type safety in Python](/python/type-safety.md) - Run mypy in strict mode; annotate every function; avoid `Any` by receiving unknown data as `object` and narrowing (prefer dataclasses / pydantic as containers); justify any `type: ignore`.
+* [Linting and formatting in Python](/python/linting.md) - Use ruff for both linting (`ruff check`) and formatting (`ruff format`); defaults are the floor, run locally and in CI. Ruff is not a type checker — that stays mypy's job.
