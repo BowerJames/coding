@@ -3,7 +3,7 @@ type: python
 title: Logging in Python
 description: "Implement the log-format and stream-routing conventions with stdlib logging: a stdout handler (DEBUG-WARNING) and a stderr handler (ERROR+)."
 tags: [python, logging, observability]
-timestamp: 2026-07-09T11:53:30Z
+timestamp: 2026-07-10T16:20:00Z
 ---
 
 Python's standard `logging` module implements the wiki's logging conventions —
@@ -93,12 +93,21 @@ log.error("database connection refused")      # -> stderr  (alertable)
   `/logging/streams.md`). The `stderr` handler's `level=ERROR` therefore emits
   `ERROR` only in practice; if a library logs `CRITICAL`, it lands on `stderr`
   alongside `ERROR`, which is consistent with the rule.
+- **Prefer `logger.exception()` inside an `except` block.** When you log at an
+  error handler, `logger.exception(msg)` emits the message **and the current
+  exception's stack trace** (captured automatically from `sys.exc_info()`), which
+  is the single most useful artifact for later debugging. `logger.error(str(e))`
+  drops the trace. This is the Python mechanism for the
+  [error-handling](/python/error-handling.md) "log where handled" rule — log
+  once, at the handler, *with* the trace.
 
 # See also
 
 - [Log line format](/logging/format.md) — the `<timestamp_utc> <level> <message>` structure this formatter produces.
 - [Log output streams](/logging/streams.md) — the level→stream rule this setup implements.
+- [Error handling in Python](/python/error-handling.md) — `logger.exception()` logs the trace at the error handler; log where handled.
 
 # Citations
 
 [1] Derives from the same ingested convention directive as [/logging/streams.md](/logging/streams.md): DEBUG/INFO/WARNING → stdout, ERROR → stderr (stderr only). Personal engineering convention; no external URL. Ingested 2026-07-09.
+[2] Miguel Grinberg, "The Ultimate Guide to Error Handling in Python" (2024-10-07), https://blog.miguelgrinberg.com/post/the-ultimate-guide-to-error-handling-in-python — `logger.exception()` over `logger.error()` for stack traces (noted in the article and its comment thread).

@@ -15,8 +15,10 @@ okf_version: "0.1"
 
 ## Error handling
 
+* [Error taxonomy](/error-handling/error-taxonomy.md) - Classify any error by origin (new vs bubbled-up) and recoverability → four handling strategies. Most code should do nothing and let non-recoverable errors flow to a single handler.
+* [EAFP vs LBYL](/error-handling/eafp-vs-lbyl.md) - Look Before You Leap vs Easier to Ask Forgiveness than Permission. Exception languages favour EAFP; Rust/Go make explicit checking idiomatic. Let errors flow where the language allows.
 * [Fault tolerance](/error-handling/fault-tolerance.md) - Survive by default: fail at the narrowest scope (fallback → fail the request → crash only as a last resort); every failure logged at `ERROR`. An error means an application assumption broke (external dependency, data model, or internal state).
-* [Log vs. raise](/error-handling/log-vs-raise.md) - Absorb recoverable anomalies (log + continue/fallback), propagate the rest (throw/`Err`/boundary); always log `ERROR`. Crash-vs-survive is decided by Fault tolerance.
+* [Log vs. raise](/error-handling/log-vs-raise.md) - Absorb recoverable anomalies (log at the recovery site), propagate the rest (the handler logs once). Always log `ERROR` — exactly once, where handled.
 
 ## Workflow
 
@@ -24,6 +26,7 @@ okf_version: "0.1"
 
 ## Python
 
+* [Error handling in Python](/python/error-handling.md) - Python realization of the error taxonomy: try/except, EAFP, custom exceptions, `logger.exception()`, no `assert`, one top-level `except Exception` catch-all, let the framework (Flask/Tkinter) do it.
 * [Logging in Python](/python/logging.md) - stdlib `logging` configured for the UTC line-format rule and DEBUG-WARNING→stdout / ERROR→stderr routing.
 * [Type safety in Python](/python/type-safety.md) - Run mypy in strict mode; annotate every function; avoid `Any` by receiving unknown data as `object` and narrowing (prefer dataclasses / pydantic as containers); justify any `type: ignore`.
 * [Linting and formatting in Python](/python/linting.md) - Use ruff for both linting (`ruff check`) and formatting (`ruff format`); defaults are the floor, run locally and in CI. Ruff is not a type checker — that stays mypy's job.
