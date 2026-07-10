@@ -3,7 +3,7 @@ type: practice
 title: Log output streams
 description: "Route DEBUG, INFO, WARNING to stdout and ERROR to stderr so error-grade output is separately alertable."
 tags: [logging, observability, alerting]
-timestamp: 2026-07-09T14:31:09Z
+timestamp: 2026-07-10T17:30:00Z
 ---
 
 Every log line emitted by code in this wiki's scope is routed to one of the two
@@ -24,7 +24,7 @@ ERROR    -> stderr
 | -------- | ------ | --------------------------------------------------------------------------------- |
 | `DEBUG`  | stdout | Diagnostic detail; normal observability. Never alertable.                         |
 | `INFO`   | stdout | Normal operation. Never alertable.                                                |
-| `WARNING`| stdout | Recoverable / soft-fail conditions worth reviewing. Not alertable.               |
+| `WARNING`| stdout | Expected soft handling where no assumption broke; worth reviewing. Not alertable. |
 | `ERROR`  | stderr | Failures / exceptional conditions. **The alertable channel.**                     |
 
 These four are the **canonical level set**. Do not add more, and do not *emit*
@@ -35,6 +35,12 @@ structure.
 If a *dependency* or framework emits severities above `ERROR` anyway (e.g.
 `CRITICAL`/`FATAL`), route them to **stderr alongside `ERROR`** — stderr is the
 single home for error-grade output.
+
+`WARNING` is for routine, expected soft handling where **no assumption broke**
+(e.g. an in-policy retry within its budget, a rate-limit backoff). The moment an
+assumption actually breaks — a dependency is down, data is malformed, an
+invariant is violated — it is `ERROR` even if you recover via a fallback. See
+[Fault tolerance](/error-handling/fault-tolerance.md) for the boundary.
 
 # Rationale
 
