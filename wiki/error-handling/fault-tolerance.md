@@ -3,7 +3,7 @@ type: practice
 title: "Fault tolerance — survive by default, fail narrowly, log every failure at ERROR"
 description: "Applications should stay alive by default: fail at the narrowest scope that contains the damage (fallback → fail the request → crash only as a last resort). Every failure is logged at ERROR so developers are alerted, because it means an assumption of the application broke."
 tags: [error-handling, fault-tolerance, reliability, observability, graceful-degradation]
-timestamp: 2026-07-09T16:14:26Z
+timestamp: 2026-07-10T16:20:00Z
 ---
 
 # The policy
@@ -56,6 +56,32 @@ last-resort role; the everyday stance is *fail softly*.
 > that to **request isolation** — a failing request is the component that
 > "crashes" (into a `500`); the process is the system that keeps running.
 
+# The mechanism: a single boundary catch-all
+
+The request-scope row of the table above is *implemented* by **one top-level
+catch-all** that guarantees no failure ever escapes as an uncaught crash. Put a
+single `except Exception` (or your language's equivalent) at the application
+boundary — the **one place a catch-all is correct**
+([EAFP vs LBYL](eafp-vs-lbyl.md)). What it does is exactly the request row of
+the blast-radius table: log the error (with a stack trace) and turn it into a
+clean boundary outcome — `HTTP 500`, `sys.exit(1)`. With that in place, the rest
+of the code can be **T4** in the [error taxonomy](error-taxonomy.md): do
+nothing, let errors flow, and trust that they'll be caught here.
+
+Application frameworks already provide this boundary, so you usually don't write
+it yourself:
+
+- **Flask** wraps every request in `full_dispatch_request()`, which catches
+  exceptions, logs them with stack traces, and returns `HTTP 500`.
+- **Tkinter** wraps each event handler in a catch-all so a faulty handler can't
+  crash the GUI.
+
+Centralising handling here has a second payoff: the **dev-vs-prod** switch lives
+in one place. In development, re-raise at the boundary so you *see* crashes and
+stack traces; in production, the same boundary catches everything, logs it, and
+exits/responds cleanly. Business logic is identical in both. (See
+[Error handling in Python](/python/error-handling.md) for the code.)
+
 # What an `ERROR` means
 
 An `ERROR` means **an assumption the application relied on did not hold**. This
@@ -73,6 +99,12 @@ which assumption broke. Assumptions fall into three families:
 > succeeded (fault tolerance doing its job), but an assumption broke and you want
 > to know about it. Log it at error grade, then fix the producing system before
 > the tolerated anomaly quietly becomes the new normal.
+
+> **Logged once, at the handler.** "Every failure is logged `ERROR`" means
+> *exactly one* record per failure, emitted at the place it is **handled** — the
+> recovery site for an absorbed failure, or the boundary catch-all above for a
+> propagated one — not duplicated at every frame it passes through. See
+> [Log vs. raise](log-vs-raise.md).
 
 # `ERROR` vs `WARNING`
 
@@ -104,7 +136,10 @@ something it routinely anticipates) → `WARNING`.
 
 # See also
 
+- [Error taxonomy](error-taxonomy.md) — the 2×2 (new/bubbled × recoverable/not); the boundary catch-all is what makes T4 ("do nothing") safe.
+- [EAFP vs LBYL](eafp-vs-lbyl.md) — the single boundary catch-all is the one place a catch-all is correct.
 - [Log vs. raise](log-vs-raise.md) — absorb recoverable anomalies vs propagate the rest (the mechanism; crash-vs-survive is decided here).
+- [Error handling in Python](/python/error-handling.md) — the code: CLI catch-all, Flask/Tkinter boundary, dev-vs-prod switch.
 - [Log output streams](/logging/streams.md) — why `ERROR` is the alertable channel every failure belongs on.
 - [Log line format](/logging/format.md) — the `<timestamp_utc> <level> <message>` shape error lines take.
 - [Logging in Python](/python/logging.md) — language-specific implementation of the routing.
@@ -115,3 +150,4 @@ something it routinely anticipates) → `WARNING`.
 [1] Ingested convention directive (2026-07-09): "Support fault-tolerant applications; all failures and unexpected behaviours should be logged as errors so developers can be alerted, since it means either the data model is incorrect or a third-party dependency is failing. Strive for the application not crashing; where possible reasonable fallbacks keep it alive (e.g. a REST server returns `500`, not a crash)." Personal engineering convention; no external URL.
 [2] "Let it crash" — Erlang/OTP supervision philosophy: fail fast in the failing component, restart it behind a supervisor so the system survives. Contrasted here as request isolation.
 [3] Graceful degradation — the general reliability principle of continuing in a reduced mode when the ideal path is unavailable; names the fallback tier of the blast-radius table.
+[4] Miguel Grinberg, "The Ultimate Guide to Error Handling in Python" (2024-10-07), https://blog.miguelgrinberg.com/post/the-ultimate-guide-to-error-handling-in-python — source of the single top-level catch-all mechanism (Flask `full_dispatch_request`, Tkinter) and the dev-vs-prod boundary switch, which implement the request-scope row of the blast-radius table.
