@@ -3,7 +3,7 @@ type: python
 title: Logging in Python
 description: "Implement the log-format and stream-routing conventions with stdlib logging: a stdout handler (DEBUG-WARNING) and a stderr handler (ERROR+)."
 tags: [python, logging, observability]
-timestamp: 2026-07-10T16:20:00Z
+timestamp: 2026-07-14T00:00:00Z
 ---
 
 Python's standard `logging` module implements the wiki's logging conventions —
@@ -99,13 +99,14 @@ log.error("database connection refused")      # -> stderr  (alertable)
   is the single most useful artifact for later debugging. `logger.error(str(e))`
   drops the trace. This is the Python mechanism for the
   [error-handling](/python/error-handling.md) "log where handled" rule — log
-  once, at the handler, *with* the trace.
+  once, at the handler, *with* the trace. Logging anywhere short of the handler — `logger.error(str(e))` before a `raise` — is the [log-and-re-raise](/error-handling/log-and-re-raise.md) anti-pattern: double-logged, and traceless.
 
 # See also
 
 - [Log line format](/logging/format.md) — the `<timestamp_utc> <level> <message>` structure this formatter produces.
 - [Log output streams](/logging/streams.md) — the level→stream rule this setup implements.
 - [Error handling in Python](/python/error-handling.md) — `logger.exception()` logs the trace at the error handler; log where handled.
+- [Log and re-raise](/error-handling/log-and-re-raise.md) — the anti-pattern this `logger.exception()`-vs-`logger.error()` note prevents: traceless logging at a re-raise site.
 
 # Citations
 

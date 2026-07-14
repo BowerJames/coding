@@ -3,7 +3,7 @@ type: practice
 title: "Log vs. raise — absorb recoverable anomalies, propagate the rest (always log ERROR)"
 description: "For a given anomaly, absorb it (recover + log ERROR at the recovery site) when you can still satisfy the caller, and propagate it (let it bubble to a handler) when you can't. Log where handled — exactly once, at the handler. Whether the process survives is a separate decision — see Fault tolerance."
 tags: [error-handling, logging, observability, soft-assertions, error-propagation]
-timestamp: 2026-07-10T16:20:00Z
+timestamp: 2026-07-14T00:00:00Z
 ---
 
 > **Superseded thesis (2026-07-09).** An earlier version of this page said
@@ -43,7 +43,7 @@ and passed on.
 recovered (absorb), or you turned the failure into a clean boundary outcome
 (the request returns `500`, the process exits cleanly). Merely catching to
 re-raise or translate is *propagation*, and logging there is the
-**log-and-re-raise smell**: it duplicates the record the handler will emit, and
+**[log-and-re-raise](log-and-re-raise.md) smell**: it duplicates the record the handler will emit, and
 the hand-rolled line almost always omits the stack trace. Reach for it only as a
 deliberate breadcrumb at a specific layer, never as the default.
 
@@ -133,6 +133,7 @@ fail the request, not the process.)*
 - [Error taxonomy](error-taxonomy.md) — the 2×2 this absorb/propagate split summarises (absorb = T1+T2, propagate = T3+T4).
 - [EAFP vs LBYL](eafp-vs-lbyl.md) — the *catching-style* question, which is language-dependent.
 - [Fault tolerance](fault-tolerance.md) — the policy this page defers to: survive by default, fail narrowly (fallback → fail request → crash as last resort); what an `ERROR` means.
+- [Log and re-raise](log-and-re-raise.md) — the named anti-pattern for violating this rule: catching, logging, then re-raising (double-logs, drops the trace).
 - [Log output streams](/logging/streams.md) — why `ERROR` is the alertable channel failures are logged on.
 - [Log line format](/logging/format.md) — the `<timestamp_utc> <level> <message>` shape the example log line follows.
 - [Logging in Python](/python/logging.md) — language-specific implementation of the routing.
@@ -144,4 +145,4 @@ fail the request, not the process.)*
 [2] Ingested convention directive (2026-07-09): "Support fault-tolerant applications; all failures logged as errors; strive not to crash; reasonable fallbacks (REST returns `500`, not a crash)." Supersedes the original "crash on bugs you own" thesis; crash-vs-survive now lives in [Fault tolerance](fault-tolerance.md).
 [3] Postel's Law (the Robustness Principle): "be conservative in what you send, be liberal in what you accept." Cited for its *boundary* form — absorbing deviations in external data.
 [4] Soft assertions — a testing idiom (e.g. TestNG) in which failures are recorded and the run continues; the source of the "record, don't abort" technique adapted here as "absorb, but log."
-[5] Miguel Grinberg, "The Ultimate Guide to Error Handling in Python" (2024-10-07), https://blog.miguelgrinberg.com/post/the-ultimate-guide-to-error-handling-in-python — source of the "log where handled / log once at the handler" refinement and the log-and-re-raise smell; the absorb/propagate split is generalised into the [Error taxonomy](error-taxonomy.md).
+[5] Miguel Grinberg, "The Ultimate Guide to Error Handling in Python" (2024-10-07), https://blog.miguelgrinberg.com/post/the-ultimate-guide-to-error-handling-in-python — source of the "log where handled / log once at the handler" refinement, the trace-loss point (`logger.error` vs `logger.exception`), and the bad-Flask-endpoint / framework-duplication example. The article does not name "log-and-re-raise" or discuss double-logging at intermediate frames; that framing is a wiki generalisation, promoted to a named anti-pattern in [Log and re-raise](log-and-re-raise.md). The absorb/propagate split is generalised into the [Error taxonomy](error-taxonomy.md).
