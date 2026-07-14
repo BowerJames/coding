@@ -3,7 +3,7 @@ type: python
 title: "Error handling in Python"
 description: "Python realization of the error taxonomy: try/except mechanics, EAFP, custom exception classes, logger.exception() for stack traces, no assert for error handling, one top-level except-Exception catch-all, and letting the framework (Flask/Tkinter) do it."
 tags: [python, error-handling, exceptions, eafp]
-timestamp: 2026-07-10T16:20:00Z
+timestamp: 2026-07-14T00:00:00Z
 ---
 
 Python is an exception-based language, so [EAFP](/error-handling/eafp-vs-lbyl.md)
@@ -165,7 +165,7 @@ def update_song(id):
 ```
 
 The per-endpoint `try`/`except`/`rollback`/`logger.error` block is an
-anti-pattern here: it duplicates what the framework already does, and the
+anti-pattern here — the framework-duplication case of [log-and-re-raise](/error-handling/log-and-re-raise.md): it duplicates what the framework already does, and the
 hand-rolled `logger.error('…', e)` invariably omits the stack trace.
 
 # Dev vs prod from one boundary
@@ -194,6 +194,7 @@ cleanly. Frameworks expose this same switch as their debug/dev mode.
 - [EAFP vs LBYL](/error-handling/eafp-vs-lbyl.md) — why EAFP is Python's idiomatic catching style.
 - [Fault tolerance](/error-handling/fault-tolerance.md) — the policy the top-level catch-all implements (fail the request, not the process).
 - [Log vs. raise](/error-handling/log-vs-raise.md) — log where handled, never swallow silently.
+- [Log and re-raise](/error-handling/log-and-re-raise.md) — the named anti-pattern behind the per-endpoint try/except/logger.error block and the traceless `logger.error(str(e))`.
 - [Logging in Python](logging.md) — `logger.exception()` and the stdout/stderr routing.
 
 # Citations

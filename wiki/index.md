@@ -19,6 +19,7 @@ okf_version: "0.1"
 * [EAFP vs LBYL](/error-handling/eafp-vs-lbyl.md) - Look Before You Leap vs Easier to Ask Forgiveness than Permission. Exception languages favour EAFP; Rust/Go make explicit checking idiomatic. Let errors flow where the language allows.
 * [Fault tolerance](/error-handling/fault-tolerance.md) - Survive by default: fail at the narrowest scope (fallback → fail the request → crash only as a last resort); every failure logged at `ERROR`. An error means an application assumption broke (external dependency, data model, or internal state).
 * [Log vs. raise](/error-handling/log-vs-raise.md) - Absorb recoverable anomalies (log at the recovery site), propagate the rest (the handler logs once). Always log `ERROR` — exactly once, where handled.
+* [Log and re-raise](/error-handling/log-and-re-raise.md) - Catching an error, logging it, then re-raising: double-logs and drops the stack trace. Log where handled — once, at the handler; propagate silently between frames.
 
 ## Workflow
 

@@ -3,7 +3,7 @@ type: pattern
 title: "Error taxonomy — new/bubbled × recoverable/not: the 2×2 that decides how to handle an error"
 description: "Classify any error by origin (you raised it vs it bubbled up from a callee) and by recoverability (you can fix it here vs you can't), giving four handling strategies. Most code should do nothing and let non-recoverable errors flow to a single handler."
 tags: [error-handling, error-propagation, recoverability, fault-tolerance]
-timestamp: 2026-07-10T16:20:00Z
+timestamp: 2026-07-14T00:00:00Z
 ---
 
 The mechanics of error handling (`try/except`, `Result`/`?`, `if err != nil`) are
@@ -85,7 +85,7 @@ Log **where the error is handled**, not where it is merely caught-and-passed-on
 - **T1/T2 (recovered)** — log `ERROR` at the recovery site. This frame is the
   *only* place that ever sees the error (it never reaches the boundary), so the
   log is mandatory — skipping it is a silent failure.
-- **T3/T4 (propagated)** — do **not** log at every intermediate frame. The error
+- **T3/T4 (propagated)** — do **not** log at every intermediate frame (logging only to pass it on is the [log-and-re-raise](log-and-re-raise.md) anti-pattern). The error
   is logged **once, at the handler** that finally absorbs it or turns it into a
   clean boundary failure.
 
@@ -99,6 +99,7 @@ the handler*.
 - [EAFP vs LBYL](eafp-vs-lbyl.md) — the *catching style* question; which is idiomatic depends on the language.
 - [Fault tolerance](fault-tolerance.md) — survive by default; the boundary catch-all is what makes T4 safe.
 - [Error handling in Python](/python/error-handling.md) — the Python realization of these four types.
+- [Log and re-raise](log-and-re-raise.md) — the named anti-pattern for the T3/T4 logging mistake: catching, logging, then propagating anyway.
 
 # Citations
 
