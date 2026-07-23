@@ -3,7 +3,7 @@ type: python
 title: Logging in Python
 description: "Implement the log-format and stream-routing conventions with stdlib logging: a stdout handler (DEBUG-WARNING) and a stderr handler (ERROR+)."
 tags: [python, logging, observability]
-timestamp: 2026-07-14T00:00:00Z
+timestamp: 2026-07-23T00:00:00Z
 ---
 
 Python's standard `logging` module implements the wiki's logging conventions —
@@ -93,6 +93,7 @@ log.error("database connection refused")      # -> stderr  (alertable)
   `/logging/streams.md`). The `stderr` handler's `level=ERROR` therefore emits
   `ERROR` only in practice; if a library logs `CRITICAL`, it lands on `stderr`
   alongside `ERROR`, which is consistent with the rule.
+- **This is the core-fields baseline; add the context layer.** The plain `%(asctime)s %(levelname)s %(message)s` formatter above carries the reserved core fields only. To satisfy the scoped-context requirement of [Log line format](/logging/format.md) — attaching structured per-scope detail without per-call-site plumbing — pair this setup with the [contextvars + `logging_context`](/python/logging-context.md) layer (which also shows the JSON rendering that carries context fields as top-level keys).
 - **Prefer `logger.exception()` inside an `except` block.** When you log at an
   error handler, `logger.exception(msg)` emits the message **and the current
   exception's stack trace** (captured automatically from `sys.exc_info()`), which
@@ -104,6 +105,7 @@ log.error("database connection refused")      # -> stderr  (alertable)
 # See also
 
 - [Log line format](/logging/format.md) — the `<timestamp_utc> <level> <message>` structure this formatter produces.
+- [Scoped log context in Python](/python/logging-context.md) — the `contextvars` + `logging_context` layer that adds scoped structured context on top of this baseline formatter.
 - [Log output streams](/logging/streams.md) — the level→stream rule this setup implements.
 - [Error handling in Python](/python/error-handling.md) — `logger.exception()` logs the trace at the error handler; log where handled.
 - [Log and re-raise](/error-handling/log-and-re-raise.md) — the anti-pattern this `logger.exception()`-vs-`logger.error()` note prevents: traceless logging at a re-raise site.
